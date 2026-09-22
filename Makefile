@@ -26,6 +26,9 @@ coord_query.o: coord_query.c
 record.o: record.c
 	$(CC) -c $< $(CFLAGS)
 
+id_query_indexed.o : id_query_indexed.o
+	$(CC) -c $< $(CFLAGS)
+
 sort.o: sort.c
 	$(CC) -c $< $(CFLAGS)
 
