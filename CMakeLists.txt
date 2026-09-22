@@ -12,7 +12,8 @@ add_library(common OBJECT
         id_query.h
         record.c
         record.h
-        timing.h)
+        timing.h
+        id_query_indexed.c)
 
 add_executable(coord_query_naive coord_query_naive.c)
 target_link_libraries(coord_query_naive PRIVATE common)
@@ -22,3 +23,6 @@ target_link_libraries(id_query_naive PRIVATE common)
 
 add_executable(random_ids random_ids.c)
 target_link_libraries(random_ids PRIVATE common)
+
+add_executable(id_query_indexed id_query_indexed.c)
+target_link_libraries(id_query_indexed PRIVATE common)

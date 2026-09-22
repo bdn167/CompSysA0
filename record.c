@@ -10,14 +10,17 @@ int input_looks_ok(FILE *f) {
   char *line = NULL;
   size_t n;
   if (getline(&line, &n, f) == -1) {
+    printf("Stopping\n");
     return -1;
   }
 
   int ret;
   if (strcmp(line, "name	alternative_names	osm_type	osm_id	class	type	lon	lat	place_rank	importance	street	city	county	state	country	country_code	display_name	west	south	east	north	wikidata	wikipedia	housenumbers\n") == 0) {
     ret = 1;
+    printf("What\n");
   } else {
     ret = 0;
+    printf("0 or something\n");
   }
 
   free(line);
@@ -143,12 +146,14 @@ struct record* read_records(const char *filename, int *n) {
   *n = 0;
 
   if (f == NULL) {
+    printf("Can't open record file %s\n", filename);
     return NULL;
   }
 
-  if (!input_looks_ok(f)) {
-    return NULL;
-  }
+  // if (!input_looks_ok(f)) {
+  //   printf("Can't read record file %s\n", filename);
+  //   return NULL;
+  // }
 
   int capacity = 100;
   int i = 0;
