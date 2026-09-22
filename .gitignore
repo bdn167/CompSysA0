@@ -1,6 +1,5 @@
 # gitignore everything with no extension
 *
 !*.*
-!Makefile
 
 *.o
