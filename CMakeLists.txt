@@ -5,14 +5,20 @@ set(CMAKE_C_STANDARD 11)
 
 include_directories(.)
 
-add_executable(CompSysA0
+add_library(common OBJECT
         coord_query.c
         coord_query.h
-        coord_query_naive.c
         id_query.c
         id_query.h
-        id_query_naive.c
-        random_ids.c
         record.c
         record.h
         timing.h)
+
+add_executable(coord_query_naive coord_query_naive.c)
+target_link_libraries(coord_query_naive PRIVATE common)
+
+add_executable(id_query_naive id_query_naive.c)
+target_link_libraries(id_query_naive PRIVATE common)
+
+add_executable(random_ids random_ids.c)
+target_link_libraries(random_ids PRIVATE common)
