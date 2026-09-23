@@ -9,6 +9,7 @@
 
 #include "record.h"
 #include "coord_query.h"
+#include "../../AppData/Local/Programs/CLion 2025.3/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/float.h"
 
 struct naive_data {
   struct record *rs;
@@ -28,21 +29,24 @@ void free_naive(struct naive_data* data) {
   free(data);
 }
 
-double Dist(double lon1, double lat1, double lon2, double lat2) {
-  return sqrt((lon1-lon2)*(lon1-lon2)-(lat1-lat2)*(lat1-lat2));
+double get_dist(double lon1, double lat1, double lon2, double lat2) {
+  return fabs((lon1-lon2)*(lon1-lon2)-(lat1-lat2)*(lat1-lat2));
 }
 
 const struct record* lookup_naive(struct naive_data *data, double lon, double lat) {
-  struct naive_data *closest = data;
-  double dist = Dist(data->rs[0].lon, data->rs[0].lat, lon, lat);
+  const struct record *closest = NULL;
+  double closestDist = DBL_MAX;
 
-  for (int i = 1; i < data->n; i++) {
-    if (Dist(data->rs[i].lon, data->rs[i].lat, lon, lat) < dist) {
-      closest = data;
+  for (int i = 0; i < data->n; i++) {
+    struct record cur = data->rs[i];
+    const double dist = get_dist(cur.lon, cur.lat, lon, lat);
+    if (dist < closestDist) {
+      closest = &cur;
+      closestDist = dist;
     }
   }
 
-  return closest->rs;
+  return closest;
 }
 
 int main(int argc, char** argv) {

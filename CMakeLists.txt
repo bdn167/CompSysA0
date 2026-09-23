@@ -28,3 +28,6 @@ target_link_libraries(id_query_indexed PRIVATE common)
 
 add_executable(id_query_binsort id_query_binsort.c)
 target_link_libraries(id_query_binsort PRIVATE common)
+
+add_executable(coord_query_kdtree coord_query_kdtree.c)
+target_link_libraries(coord_query_kdtree PRIVATE common)
