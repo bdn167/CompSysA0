@@ -25,3 +25,6 @@ target_link_libraries(random_ids PRIVATE common)
 
 add_executable(id_query_indexed id_query_indexed.c)
 target_link_libraries(id_query_indexed PRIVATE common)
+
+add_executable(id_query_binsort id_query_binsort.c)
+target_link_libraries(id_query_binsort PRIVATE common)
