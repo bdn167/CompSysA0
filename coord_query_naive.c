@@ -1,15 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
-#include <stdint.h>
-#include <errno.h>
-#include <assert.h>
-#include <math.h>
+#include <float.h>
 
 #include "record.h"
 #include "coord_query.h"
-#include "../../AppData/Local/Programs/CLion 2025.3/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/float.h"
 
 struct naive_data {
   struct record *rs;
@@ -30,18 +25,20 @@ void free_naive(struct naive_data* data) {
 }
 
 double get_dist(double lon1, double lat1, double lon2, double lat2) {
-  return fabs((lon1-lon2)*(lon1-lon2)-(lat1-lat2)*(lat1-lat2));
+  double dx = lon1 - lon2;
+  double dy = lat1 - lat2;
+  return dx * dx + dy * dy;
 }
 
 const struct record* lookup_naive(struct naive_data *data, double lon, double lat) {
-  const struct record *closest = NULL;
+  struct record *closest = NULL;
   double closestDist = DBL_MAX;
 
   for (int i = 0; i < data->n; i++) {
-    struct record cur = data->rs[i];
-    const double dist = get_dist(cur.lon, cur.lat, lon, lat);
+    struct record *cur = &data->rs[i];
+    double dist = get_dist(cur->lon, cur->lat, lon, lat);
     if (dist < closestDist) {
-      closest = &cur;
+      closest = cur;
       closestDist = dist;
     }
   }

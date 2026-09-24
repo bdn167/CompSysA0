@@ -1,15 +1,10 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
-#include <stdint.h>
-#include <errno.h>
-#include <assert.h>
-#include <math.h>
+#include <float.h>
 
 #include "record.h"
 #include "coord_query.h"
-#include "../../AppData/Local/Programs/CLion 2025.3/bin/mingw/lib/gcc/x86_64-w64-mingw32/13.1.0/include/float.h"
 
 struct kd_data {
     struct record *rs;
@@ -18,33 +13,40 @@ struct kd_data {
 };
 
 struct node {
-    double point;
+    struct record *rec;
     int axis;
     struct node *left;
     struct node *right;
-    struct record *rec;
 };
 
-double get_point(struct record *rs, int i, int axis) {
-    return axis == 1 ? rs[i].lat : rs[i].lon;
+struct closest {
+    struct node *node;
+    double d;
+};
+
+int compare_lon(const void *a, const void *b) {
+    double x = ((const struct record *)a)->lon;
+    double y = ((const struct record *)b)->lon;
+    return (x > y) - (x < y);
+}
+int compare_lat(const void *a, const void *b) {
+    double x = ((const struct record *)a)->lat;
+    double y = ((const struct record *)b)->lat;
+    return (x > y) - (x < y);
 }
 
 struct node *build(struct kd_data *data, int depth, int l, int r) {
-    if (l > r) {
-        return NULL;
-    }
+    if (l > r) return NULL;
 
     int axis = depth % 2;
+    qsort(data->rs + l, r - l + 1, sizeof(struct record), axis == 0 ? compare_lon : compare_lat);
+
     int mid = l + (r - l) / 2;
-    double median = get_point(data->rs, mid, axis);
     struct node *cur = malloc(sizeof(struct node));
-    struct node *left = build(data, depth + 1, l, mid - 1);
-    struct node *right = build(data, depth + 1, mid + 1, r);
-    cur->point = median;
-    cur->axis = axis;
-    cur->left = left;
-    cur->right = right;
     cur->rec = &data->rs[mid];
+    cur->axis = axis;
+    cur->left = build(data, depth + 1, l, mid - 1);
+    cur->right = build(data, depth + 1, mid + 1, r);
     return cur;
 }
 
@@ -56,43 +58,56 @@ struct kd_data *mk_kd(struct record *rs, int n) {
     return data;
 }
 
-void free_naive(struct kd_data *data) {
+void free_tree(struct node *n) {
+    if (!n) return;
+    free_tree(n->left);
+    free_tree(n->right);
+    free(n);
+}
+
+void free_kd(struct kd_data *data) {
+    free_tree(data->first);
     free(data);
 }
 
 double get_dist(double lon1, double lat1, double lon2, double lat2) {
-    return fabs((lon1 - lon2) * (lon1 - lon2) - (lat1 - lat2) * (lat1 - lat2));
+    double dx = lon1 - lon2;
+    double dy = lat1 - lat2;
+    return dx * dx + dy * dy;
 }
 
-const struct record *lookup(double closest, double lon, double lat, struct node *cur) {
-    if (!cur) {
-        return NULL;
+void lookup(struct closest *closest, double lon, double lat, struct node *cur) {
+    if (!cur) return;
+
+    double cur_lon = cur->rec->lon;
+    double cur_lat = cur->rec->lat;
+    double d = get_dist(cur_lon, cur_lat, lon, lat);
+    if (d < closest->d) {
+        closest->node = cur;
+        closest->d = d;
     }
 
-    double query = cur->axis == 1 ? lat : lon;
+    double diff = cur->axis == 0
+                  ? cur_lon - lon
+                  : cur_lat - lat;
 
-    if (fabs(cur->point - query) < closest) {
-        closest = cur->point;
+    if (diff >= 0 || closest->d > diff * diff) {
+        lookup(closest, lon, lat, cur->left);
     }
-    double diff = cur->point - query;
-    double radius = fabs(query - closest);
-    if (diff >= 0 || radius > fabs(diff)) {
-        return lookup(closest, lon, lat, cur->left);
+    if (diff <= 0 || closest->d > diff * diff) {
+        lookup(closest, lon, lat, cur->right);
     }
-    if (diff <= 0 || radius > fabs(diff)) {
-        return lookup(closest, lon, lat, cur->right);
-    }
-
-    return cur->rec;
 }
 
-const struct record *lookup_naive(struct kd_data *data, double lon, double lat) {
-    lookup(DBL_MAX, lon, lat, data->first);
+const struct record *lookup_kd(struct kd_data *data, double lon, double lat) {
+    struct closest closest = {NULL, DBL_MAX};
+    lookup(&closest, lon, lat, data->first);
+    return closest.node ? closest.node->rec : NULL;
 }
 
 int main(int argc, char **argv) {
     return coord_query_loop(argc, argv,
                             (mk_index_fn) mk_kd,
-                            (free_index_fn) free_naive,
-                            (lookup_fn) lookup_naive);
+                            (free_index_fn) free_kd,
+                            (lookup_fn) lookup_kd);
 }
