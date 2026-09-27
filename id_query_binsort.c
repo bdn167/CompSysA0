@@ -24,6 +24,8 @@ int comp(const void *a, const void *b) {
     if (recordA.osm_id > recordB.osm_id) {
         return 1;
     }
+
+    printf("WARNING! DUPLICATE ID: %ld\n", recordA.osm_id);
     return 0;
 }
 
