@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   while (1) {
     int r = rand() % n;
 
-    if (printf("%ld %ld\n", (double)rs[r].lon, (double)rs[r].lat) == 0) {
+    if (printf("%f %f\n", (double)rs[r].lon, (double)rs[r].lat) == 0) {
       break;
     }
   }

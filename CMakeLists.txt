@@ -31,3 +31,6 @@ target_link_libraries(id_query_binsort PRIVATE common)
 
 add_executable(coord_query_kdtree coord_query_kdtree.c)
 target_link_libraries(coord_query_kdtree PRIVATE common)
+
+add_executable(random_coords random_coords.c)
+target_link_libraries(random_coords PRIVATE common)

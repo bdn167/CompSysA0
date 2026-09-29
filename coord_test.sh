@@ -2,7 +2,7 @@ DATA_FILE=20000records_final.tsv
 N="20000"
 
 filter() {
-  grep -Ev '^(Reading records|Building index|Query time|Total query runtime):';
+  grep -Ev '^(Reading records|Building index|Query time|Total query runtime):'
 }
 
 ./random_coords "$DATA_FILE" | head -n "$N" > coords.txt
