@@ -7,7 +7,7 @@ filter() {
 
 ./random_coords "$DATA_FILE" | head -n "$N" > coords.txt
 ./coord_query_naive "$DATA_FILE" < coords.txt | filter > out_naive.txt
-./coord_query_kd "$DATA_FILE" < coords.txt | filter > out_kd.txt
+./coord_query_kdtree "$DATA_FILE" < coords.txt | filter > out_kd.txt
 
 echo "naive vs kd"
 diff out_naive.txt out_kd.txt && echo "MATCH"
