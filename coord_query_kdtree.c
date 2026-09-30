@@ -26,27 +26,31 @@ struct closest {
 };
 
 int compare_lon(const void *a, const void *b) {
-    double x = ((const struct record *)a)->lon;
-    double y = ((const struct record *)b)->lon;
-    
-    return (x > y) - (x < y);
+    const struct record *ra = a;
+    const struct record *rb = b;
+
+    if (ra->lon < rb->lon) return -1;
+    if (ra->lon > rb->lon) return 1;
+
+    if (ra->osm_id < rb->osm_id) return 1;
+    if (ra->osm_id > rb->osm_id) return -1;
+
+    printf("WARNING! DUPLICATE ID: %ld\n", ra->osm_id);
+    return 0;
 }
 
 int compare_lat(const void *a, const void *b) {
-    double x = ((const struct record *)a)->lat;
-    double y = ((const struct record *)b)->lat;
-    
-    int relation = (x > y) - (x < y);
+    const struct record *ra = a;
+    const struct record *rb = b;
 
-    if (relation == 0) {
-        double tx = ((const struct record *)a)->lon;
-        double ty = ((const struct record *)b)->lon;
+    if (ra->lat < rb->lat) return -1;
+    if (ra->lat > rb->lat) return 1;
 
-        if (tx == ty)
-            printf("WARNING! DUPLICATE COORDINATES: %ld\n", ((const struct record *)b)->osm_id);
-    }
+    if (ra->osm_id < rb->osm_id) return 1;
+    if (ra->osm_id > rb->osm_id) return -1;
 
-    return relation; 
+    printf("WARNING! DUPLICATE ID: %ld\n", ra->osm_id);
+    return 0;
 }
 
 struct node *build(struct kd_data *data, int depth, int l, int r) {
