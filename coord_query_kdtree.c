@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#include <math.h>
 
 #include "record.h"
 #include "coord_query.h"
@@ -27,12 +28,34 @@ struct closest {
 int compare_lon(const void *a, const void *b) {
     double x = ((const struct record *)a)->lon;
     double y = ((const struct record *)b)->lon;
-    return (x > y) - (x < y);
+    
+    int relation = (x > y) - (x < y);
+
+    if (relation == 0) {
+        double tx = ((const struct record *)a)->lat;
+        double ty = ((const struct record *)b)->lat;
+
+        if ((tx > ty) - (tx < ty))
+            printf("WARNING! DUPLICATE COORDINATES: %ld\n", ((const struct record *)b)->osm_id);
+    }
+
+    return relation; 
 }
 int compare_lat(const void *a, const void *b) {
     double x = ((const struct record *)a)->lat;
     double y = ((const struct record *)b)->lat;
-    return (x > y) - (x < y);
+    
+    int relation = (x > y) - (x < y);
+
+    if (relation == 0) {
+        double tx = ((const struct record *)a)->lon;
+        double ty = ((const struct record *)b)->lon;
+
+        if ((tx > ty) - (tx < ty))
+            printf("WARNING! DUPLICATE COORDINATES: %ld\n", ((const struct record *)b)->osm_id);
+    }
+
+    return relation; 
 }
 
 struct node *build(struct kd_data *data, int depth, int l, int r) {
@@ -73,7 +96,7 @@ void free_kd(struct kd_data *data) {
 double get_dist(double lon1, double lat1, double lon2, double lat2) {
     double dx = lon1 - lon2;
     double dy = lat1 - lat2;
-    return dx * dx + dy * dy;
+    return sqrt(dx * dx + dy * dy);
 }
 
 void lookup(struct closest *closest, double lon, double lat, struct node *cur) {

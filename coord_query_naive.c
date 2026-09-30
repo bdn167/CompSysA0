@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <float.h>
+#include <math.h>
 
 #include "record.h"
 #include "coord_query.h"
@@ -27,7 +28,7 @@ void free_naive(struct naive_data* data) {
 double get_dist(double lon1, double lat1, double lon2, double lat2) {
   double dx = lon1 - lon2;
   double dy = lat1 - lat2;
-  return dx * dx + dy * dy;
+  return sqrt(dx * dx + dy * dy);
 }
 
 const struct record* lookup_naive(struct naive_data *data, double lon, double lat) {
