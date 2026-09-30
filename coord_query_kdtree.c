@@ -29,17 +29,7 @@ int compare_lon(const void *a, const void *b) {
     double x = ((const struct record *)a)->lon;
     double y = ((const struct record *)b)->lon;
     
-    int relation = (x > y) - (x < y);
-
-    if (relation == 0) {
-        double tx = ((const struct record *)a)->lat;
-        double ty = ((const struct record *)b)->lat;
-
-        if (tx == ty)
-            printf("WARNING! DUPLICATE COORDINATES: %ld\n", ((const struct record *)b)->osm_id);
-    }
-
-    return relation; 
+    return (x > y) - (x < y);
 }
 
 int compare_lat(const void *a, const void *b) {

@@ -1,5 +1,5 @@
 DATA_FILE=records.tsv
-N="5000"
+N="20000"
 
 filter() {
   grep -Ev '^(Reading records|Building index|Query time|Total query runtime):'
