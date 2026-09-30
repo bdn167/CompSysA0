@@ -1,4 +1,4 @@
-DATA_FILE="20000records_final.tsv"
+DATA_FILE="records.tsv"
 N="10000"
 
 ./random_ids "$DATA_FILE" | head -n "$N" > ids.txt

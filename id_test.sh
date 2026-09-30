@@ -1,4 +1,4 @@
-DATA_FILE=20000records_final.tsv
+DATA_FILE=records.tsv
 N="20000"
 
 filter() {
