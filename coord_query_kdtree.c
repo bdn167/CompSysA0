@@ -35,8 +35,18 @@ int compare_lon(const void *a, const void *b) {
 int compare_lat(const void *a, const void *b) {
     double x = ((const struct record *)a)->lat;
     double y = ((const struct record *)b)->lat;
+    
+    int relation = (x > y) - (x < y);
 
-    return (x > y) - (x < y);;
+    if (relation == 0) {
+        double tx = ((const struct record *)a)->lon;
+        double ty = ((const struct record *)b)->lon;
+
+        if (tx == ty)
+            printf("WARNING! DUPLICATE COORDINATES: %ld\n", ((const struct record *)b)->osm_id);
+    }
+
+    return relation; 
 }
 
 struct node *build(struct kd_data *data, int depth, int l, int r) {
@@ -77,7 +87,7 @@ void free_kd(struct kd_data *data) {
 double get_dist(double lon1, double lat1, double lon2, double lat2) {
     double dx = lon1 - lon2;
     double dy = lat1 - lat2;
-    return sqrt(dx * dx + dy * dy);
+    return dx * dx + dy * dy;
 }
 
 void lookup(struct closest *closest, double lon, double lat, struct node *cur) {
@@ -85,7 +95,9 @@ void lookup(struct closest *closest, double lon, double lat, struct node *cur) {
 
     double cur_lon = cur->rec->lon;
     double cur_lat = cur->rec->lat;
+    
     double d = get_dist(cur_lon, cur_lat, lon, lat);
+
     if (d < closest->d) {
         closest->node = cur;
         closest->d = d;
