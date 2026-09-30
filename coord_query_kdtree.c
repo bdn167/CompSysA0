@@ -35,27 +35,18 @@ int compare_lon(const void *a, const void *b) {
         double tx = ((const struct record *)a)->lat;
         double ty = ((const struct record *)b)->lat;
 
-        if ((tx > ty) - (tx < ty))
+        if (tx == ty)
             printf("WARNING! DUPLICATE COORDINATES: %ld\n", ((const struct record *)b)->osm_id);
     }
 
     return relation; 
 }
+
 int compare_lat(const void *a, const void *b) {
     double x = ((const struct record *)a)->lat;
     double y = ((const struct record *)b)->lat;
-    
-    int relation = (x > y) - (x < y);
 
-    if (relation == 0) {
-        double tx = ((const struct record *)a)->lon;
-        double ty = ((const struct record *)b)->lon;
-
-        if ((tx > ty) - (tx < ty))
-            printf("WARNING! DUPLICATE COORDINATES: %ld\n", ((const struct record *)b)->osm_id);
-    }
-
-    return relation; 
+    return (x > y) - (x < y);;
 }
 
 struct node *build(struct kd_data *data, int depth, int l, int r) {
@@ -114,10 +105,10 @@ void lookup(struct closest *closest, double lon, double lat, struct node *cur) {
                   ? cur_lon - lon
                   : cur_lat - lat;
 
-    if (diff >= 0 || closest->d > diff * diff) {
+    if (diff >= 0 || closest->d > fabs(diff)) {
         lookup(closest, lon, lat, cur->left);
     }
-    if (diff <= 0 || closest->d > diff * diff) {
+    if (diff <= 0 || closest->d > fabs(diff)) {
         lookup(closest, lon, lat, cur->right);
     }
 }
