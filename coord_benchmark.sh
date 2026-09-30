@@ -1,4 +1,4 @@
-DATA_FILE="20000records_final.tsv"
+DATA_FILE="records.tsv"
 N="100"
 
 ./random_coords "$DATA_FILE" | head -n "$N" > coords.txt

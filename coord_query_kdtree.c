@@ -41,6 +41,7 @@ int compare_lon(const void *a, const void *b) {
 
     return relation; 
 }
+
 int compare_lat(const void *a, const void *b) {
     double x = ((const struct record *)a)->lat;
     double y = ((const struct record *)b)->lat;
@@ -116,10 +117,10 @@ void lookup(struct closest *closest, double lon, double lat, struct node *cur) {
                   ? cur_lon - lon
                   : cur_lat - lat;
 
-    if (diff >= 0 || closest->d > diff * diff) {
+    if (diff >= 0 || closest->d > fabs(diff)) {
         lookup(closest, lon, lat, cur->left);
     }
-    if (diff <= 0 || closest->d > diff * diff) {
+    if (diff <= 0 || closest->d > fabs(diff)) {
         lookup(closest, lon, lat, cur->right);
     }
 }

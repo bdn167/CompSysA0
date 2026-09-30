@@ -10,9 +10,9 @@ add_library(common OBJECT
         coord_query.h
         id_query.c
         id_query.h
-        record.c
         record.h
-        timing.h)
+        timing.h
+        record.c)
 
 add_executable(coord_query_naive coord_query_naive.c)
 target_link_libraries(coord_query_naive PRIVATE common m)
