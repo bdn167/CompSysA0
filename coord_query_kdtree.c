@@ -32,8 +32,8 @@ int compare_lon(const void *a, const void *b) {
     if (ra->lon < rb->lon) return -1;
     if (ra->lon > rb->lon) return 1;
 
-    if (ra->osm_id < rb->osm_id) return 1;
-    if (ra->osm_id > rb->osm_id) return -1;
+    if (ra->osm_id < rb->osm_id) return -1;
+    if (ra->osm_id > rb->osm_id) return 1;
 
     printf("WARNING! DUPLICATE ID: %ld\n", ra->osm_id);
     return 0;
@@ -46,8 +46,8 @@ int compare_lat(const void *a, const void *b) {
     if (ra->lat < rb->lat) return -1;
     if (ra->lat > rb->lat) return 1;
 
-    if (ra->osm_id < rb->osm_id) return 1;
-    if (ra->osm_id > rb->osm_id) return -1;
+    if (ra->osm_id < rb->osm_id) return -1;
+    if (ra->osm_id > rb->osm_id) return 1;
 
     printf("WARNING! DUPLICATE ID: %ld\n", ra->osm_id);
     return 0;
@@ -99,22 +99,22 @@ void lookup(struct closest *closest, double lon, double lat, struct node *cur) {
 
     double cur_lon = cur->rec->lon;
     double cur_lat = cur->rec->lat;
-    
+
     double d = get_dist(cur_lon, cur_lat, lon, lat);
 
-    if (d < closest->d) {
+    if (d < closest->d || (d == closest->d && closest->node && cur->rec->osm_id < closest->node->rec->osm_id)) {
         closest->node = cur;
         closest->d = d;
     }
 
     double diff = cur->axis == 0
-                  ? cur_lon - lon
-                  : cur_lat - lat;
+                      ? cur_lon - lon
+                      : cur_lat - lat;
 
-    if (diff >= 0 || closest->d > fabs(diff)) {
+    if (diff >= 0 || closest->d > diff * diff) {
         lookup(closest, lon, lat, cur->left);
     }
-    if (diff <= 0 || closest->d > fabs(diff)) {
+    if (diff <= 0 || closest->d > diff * diff) {
         lookup(closest, lon, lat, cur->right);
     }
 }
